@@ -29,6 +29,23 @@
         {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas', autofocus = true) }}
       </div>
       <div class="form-group">
+        <label for="seeking_venue">Seeking venue?</label>
+        {{ form.seeking_venue(class_ = 'form-comtrol', autofocus = true) }}
+      </div>
+      <div class="form-group">
+        <label for="seeking_venue_description">venue Description</label>
+        <small> What sort of talent are you looking for?</small>
+        {{form.seeking_venue_description(class_ = 'form-control', palceholder='Leave blank if not seeking talent', autofocus = true)}}
+        </div>
+      <div class="form-group">
+          <label for="website"> website link </label>
+          {{form.website(class_ = 'form-control', placeholder='http://', autofocus = true)}}
+          </div>
+      <div class="form-group">
+            <label for="image_link">Image Link</label>
+            {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+      </div>
+      <div class="form-group">
           <label for="facebook_link">Facebook Link</label>
           {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
         </div>
