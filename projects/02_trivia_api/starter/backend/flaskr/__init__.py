@@ -49,21 +49,24 @@ def create_app(test_config=None):
 
       return jsonify({
             'success': True,
-            'status_code': 200,
             'categories': category_items
-      })
+      }), 200
 
   @app.route('/categories/<int:id>/questions')
   def get_category_questions(id):
-        category = Category.query.get(id).format()
-        print(category['type'])
-        questions = Question.query.filter(Question.category == id).all()
-        question = [ question.format() for question in questions]
-        return jsonify({
+          if (id > 7):
+              abort(404)
+
+          category = Category.query.get(id).format()
+          questions = Question.query.filter(Question.category == id).all()
+          question = [ question.format() for question in questions]
+
+          return jsonify({
             'success': True,
             'questions': question,
+            'totalQuestions': len(questions),
             'currentCategory': category['type']
-        })
+            }), 200
 
 
   @app.route('/questions')
@@ -99,7 +102,7 @@ def create_app(test_config=None):
             return jsonify({
                 'success': True,
                 'deleted': question_id
-            })
+            }), 200
         except Exception as e:
             db.session.rollback()
             print(e)
