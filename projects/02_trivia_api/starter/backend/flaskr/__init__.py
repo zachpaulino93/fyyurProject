@@ -81,6 +81,7 @@ def create_app(test_config=None):
       fcs = query_cat
       category_items = {category.id: category.type.lower() for category in query_cat}
 
+      # abort to 404 not found if questions are 0
       if len(query_questions) == 0:
           abort(404)
 
@@ -110,7 +111,6 @@ def create_app(test_config=None):
         # abort to server error if it fails due to db being what failed
         except Exception as e:
             db.session.rollback()
-
             abort(500)
 
   @app.route('/questions', methods=['POST'])
@@ -126,9 +126,9 @@ def create_app(test_config=None):
 
             # i need to handle questions and answers with no data
             if len(new_question) == 0:
-                abort(422)
+                abort(404)
             elif len(new_answer) == 0:
-                abort(422)
+                abort(404)
 
             else:
                 try:
@@ -149,18 +149,18 @@ def create_app(test_config=None):
       search_term = body.get('searchTerm')
       questions = Question.query.filter(Question.question.ilike('%' + search_term + '%')).all()
       question = [question.format() for question in questions]
-
+      # abort to 404 if question not found
       if len(questions) == 0:
-          abort(422)
+          abort(404)
       try:
           return jsonify({
             'success': True,
             'questions': question,
             'total_questions': len(question)
             }), 200
-
+        # abort to server error if DB fails to search for question
       except Exception as e:
-            abort(422)
+            abort(500)
 
 
 
@@ -190,7 +190,7 @@ def create_app(test_config=None):
                 'question': questions
           }), 200
 
-
+        # abort to bad request if quiz request fails   
         except Exception as e:
                 abort(400)
 
