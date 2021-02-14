@@ -54,19 +54,22 @@ def create_app(test_config=None):
 
   @app.route('/categories/<int:id>/questions')
   def get_category_questions(id):
-          if (id > 7):
-              abort(404)
+          try:
+                  if (id > 7):
+                      abort(422)
+                  category = Category.query.get(id).format()
+                  questions = Question.query.filter(Question.category == id).all()
+                  question = [ question.format() for question in questions]
 
-          category = Category.query.get(id).format()
-          questions = Question.query.filter(Question.category == id).all()
-          question = [ question.format() for question in questions]
+                  return jsonify({
+                    'success': True,
+                    'questions': question,
+                    'totalQuestions': len(questions),
+                    'currentCategory': category['type']
+                    }), 200
+          except Exception as e:
+                  abort(422)
 
-          return jsonify({
-            'success': True,
-            'questions': question,
-            'totalQuestions': len(questions),
-            'currentCategory': category['type']
-            }), 200
 
 
   @app.route('/questions')
@@ -95,18 +98,20 @@ def create_app(test_config=None):
         # remove question from db
         try:
             question = Question.query.filter(Question.id == question_id).one_or_none()
+            # Abort if question is Null
             if question is None:
                 abort(404)
-            question.delete()
 
+            question.delete()
             return jsonify({
                 'success': True,
                 'deleted': question_id
             }), 200
+        # abort to server error if it fails due to db being what failed
         except Exception as e:
             db.session.rollback()
-            print(e)
-            abort(422)
+
+            abort(500)
 
   @app.route('/questions', methods=['POST'])
   def add_new_question():
@@ -132,10 +137,9 @@ def create_app(test_config=None):
                     return jsonify({
                         'success': True,
                         'message': 'question added'
-                        })
+                        }), 200
 
                 except Exception as e:
-                        print(e)
                         db.session.rollback()
                         abort(422)
 
@@ -145,17 +149,18 @@ def create_app(test_config=None):
       search_term = body.get('searchTerm')
       questions = Question.query.filter(Question.question.ilike('%' + search_term + '%')).all()
       question = [question.format() for question in questions]
-      print(len(question))
 
       if len(questions) == 0:
-          abort(400)
-
-      return jsonify({
+          abort(422)
+      try:
+          return jsonify({
             'success': True,
             'questions': question,
             'total_questions': len(question)
             }), 200
 
+      except Exception as e:
+            abort(422)
 
 
 
@@ -165,8 +170,6 @@ def create_app(test_config=None):
           body = request.get_json()
           category = body.get('quiz_category')
           pq = body.get('previous_questions')
-
-          print(pq, category['id'])
 
           if category['id'] == 0:
               question = Question.query.filter(Question.id.notin_(pq)).all()
@@ -189,8 +192,7 @@ def create_app(test_config=None):
 
 
         except Exception as e:
-                print(e)
-                abort(422)
+                abort(400)
 
   '''
   @TODO:
@@ -202,7 +204,7 @@ def create_app(test_config=None):
       return jsonify({
             'success': False,
             'error': 404,
-            'message': "Resource not found here"
+            'message': 'Page is not found'
       }), 404
 
   @app.errorhandler(422)
