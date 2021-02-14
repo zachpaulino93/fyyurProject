@@ -28,7 +28,7 @@ class TriviaTestCase(unittest.TestCase):
     def tearDown(self):
         """Executed after reach test"""
         pass
-
+# this is a dual test i am testing retreiveal of questions and the pagination
     def test_quesions_and_pagi_questies(self):
         req = self.client().get('/questions')
         data = json.loads(req.data)
@@ -60,7 +60,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(req.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(data['message'], 'question added')
-
+# testing all category retreiveal
     def test_get_categories(self):
 
         req = self.client().get('/categories')
@@ -68,7 +68,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(req.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['categories']))
-
+# testing invalid catigoriy id's
     def test_invalid_category_id(self):
 
           req = self.client().get('/categories/1234/questions')
@@ -77,7 +77,7 @@ class TriviaTestCase(unittest.TestCase):
           self.assertEqual(req.status_code, 422)
           self.assertEqual(data['success'], False)
           self.assertEqual(data['message'], 'Unprocessable Entity')
-
+# testing valid categroy id
     def test_valid_category_id(self):
 
 
@@ -90,7 +90,7 @@ class TriviaTestCase(unittest.TestCase):
           self.assertTrue(data['totalQuestions'])
           self.assertTrue(data['currentCategory'])
 
-
+# testing question searching
     def test_search_questions(self):
 
         q = {'searchTerm': 'largest lake in Africa'}
@@ -103,6 +103,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['questions'])
         self.assertTrue(data['total_questions'])
 
+# testing question deletion
     def test_question_deletion(self):
 
         # creating a question to then delete it
@@ -119,7 +120,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertEqual(data['deleted'], str(question_id))
         self.assertEqual(question, None)
-
+# testing the quiz to make sure it runs
     def test_play_quiz(self):
 
         data = {'previous_questions': [],
@@ -131,6 +132,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['question'])
 
+# testing the quiz to fail without data
     def test_play_without_data(self):
 
         req = self.client().post('/quizzes', json={})
@@ -140,11 +142,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], "it was a bad request")
 
-
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
 
 
 # Make the tests conveniently executable
