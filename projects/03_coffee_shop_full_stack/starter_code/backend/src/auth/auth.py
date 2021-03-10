@@ -19,6 +19,11 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
+@APP.errorhandler(AuthError)
+def handle_auth_error(ex):
+    response = jsonify(ex.error)
+    response.status_code = ex.status_code
+    return response
 
 ## Auth Header
 
@@ -30,9 +35,27 @@ class AuthError(Exception):
         it should raise an AuthError if the header is malformed
     return the token part of the header
 '''
-def get_token_auth_header():
-   raise Exception('Not Implemented')
 
+
+
+def get_token_auth_header():
+    auth = request.headers.get("Authorization", None)
+    if not auth:
+        raise AuthError({'code': 'Authorization_header_missing',
+                        'description': "Authorization header is expected"}, 401)
+    parts = auth.split(' ')
+
+    if parts[0].lower() != 'bearer':
+        raise AuthError({'code': 'invalid_header',
+                        'description': ' Authorication header must start with bearer'}, 401)
+    elif len(parts) == 1:
+        raise AuthError({'code': 'invalid_header',
+                        'description': 'Token was now found'}, 401)
+    elif len(parts) > 2:
+        raise AuthError({'code': 'invalid_header',
+                        'description': 'Authorication header must be bearer token'}, 401)
+    token = parts[1]
+    return token
 '''
 @TODO implement check_permissions(permission, payload) method
     @INPUTS
@@ -45,7 +68,17 @@ def get_token_auth_header():
     return true otherwise
 '''
 def check_permissions(permission, payload):
-    raise Exception('Not Implemented')
+    if 'permissions' not in payload:
+        raise AuthError({
+                        'code': 'invalid_claims',
+                        'description': 'Permissions not included in JWT'
+                        }, 400)
+    if permission not in payload['permissions']:
+        raise AuthError({
+                        'code': 'unauthorized',
+                        'description': 'Permission not found'
+                        }, 403)
+    return True
 
 '''
 @TODO implement verify_decode_jwt(token) method

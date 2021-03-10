@@ -16,9 +16,15 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 ## ROUTES
+
+@app.route('/drinks')
+def get_drinks():
+    return 'implement passed'
+
+
 '''
 @TODO implement endpoint
     GET /drinks
@@ -28,6 +34,23 @@ CORS(app)
         or appropriate status code indicating reason for failure
 '''
 
+
+
+
+@app.route('/drinks-detail')
+def drink_details():
+    try:
+        drink_details = Drink.query.all()
+        return jsonify({
+            'success': True,
+            'drinks': drink_details
+            }), 200
+    except:
+        abort(401)
+        return jsonify({
+            'success': Fail,
+            'message': 'Internal server error here'
+        }), 401
 
 '''
 @TODO implement endpoint
@@ -82,7 +105,7 @@ Example error handling for unprocessable entity
 @app.errorhandler(422)
 def unprocessable(error):
     return jsonify({
-                    "success": False, 
+                    "success": False,
                     "error": 422,
                     "message": "unprocessable"
                     }), 422
@@ -91,20 +114,29 @@ def unprocessable(error):
 @TODO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
              jsonify({
-                    "success": False, 
+                    "success": False,
                     "error": 404,
                     "message": "resource not found"
                     }), 404
 
 '''
+@app.errorhandler(404)
+def not_found(error):
+    return ({
+        'success': False,
+        'error': 404,
+        'message': 'Resouce not found'
+    }), 404
+
+
 
 '''
 @TODO implement error handler for 404
-    error handler should conform to general task above 
+    error handler should conform to general task above
 '''
 
 
 '''
 @TODO implement error handler for AuthError
-    error handler should conform to general task above 
+    error handler should conform to general task above
 '''
